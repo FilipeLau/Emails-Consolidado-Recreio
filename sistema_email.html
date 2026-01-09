@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Envio Consolidado - Grupo Líder</title>
+    <style>
+        :root {
+            --primary: #dc2626;
+            --primary-dark: #b91c1c;
+            --bg-gradient: linear-gradient(135deg, #ffffff 0%, #f8f9fa 30%, #f0f4ff 70%, #ffffff 100%);
+            --glass: rgba(255, 255, 255, 0.95);
+            --shadow: 0 10px 30px rgba(220, 38, 38, 0.15);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1f2937;
+        }
+
+        /* Container Principal */
+        .container {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(220, 38, 38, 0.1);
+            padding: 40px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 750px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        /* Header e Logo */
+        .header { text-align: center; margin-bottom: 30px; }
+        
+        .logo-icon {
+            width: 70px; height: 70px; margin: 0 auto 15px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 18px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.25);
+        }
+        
+        .logo-icon svg { width: 35px; height: 35px; stroke: white; stroke-width: 2; fill: none; }
+
+        h2 { margin: 0; color: #111; font-size: 1.8rem; letter-spacing: -0.5px; }
+        p.subtitle { color: #6b7280; margin-top: 5px; font-size: 0.95rem; }
+
+        /* Inputs e Cards */
+        .card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+        }
+        
+        .card:hover { border-color: rgba(220, 38, 38, 0.3); }
+
+        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; color: #374151; }
+        
+        input[type="text"], input[type="password"], textarea, input[type="url"], input[type="number"] {
+            width: 100%; padding: 12px 15px; border: 2px solid #e5e7eb; border-radius: 10px;
+            font-size: 14px; font-family: inherit; transition: all 0.3s; box-sizing: border-box;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+        }
+
+        /* Input de Arquivo Customizado */
+        input[type="file"] {
+            padding: 10px; background: #f9fafb; border: 2px dashed #d1d5db; border-radius: 10px; width: 100%;
+        }
+        
+        /* Botões */
+        .btn-group { display: flex; gap: 10px; flex-direction: column; }
+
+        .btn {
+            padding: 16px; border: none; border-radius: 12px; font-weight: 600; font-size: 1rem;
+            cursor: pointer; transition: all 0.3s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4); }
+        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; filter: grayscale(1); }
+
+        .btn-secondary { background: #f3f4f6; color: #4b5563; }
+        .btn-secondary:hover { background: #e5e7eb; color: #111; }
+
+        /* Switch Errata */
+        .errata-box {
+            background: #fef2f2; border: 1px solid #fee2e2; padding: 15px 20px;
+            border-radius: 12px; display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 25px;
+        }
+        
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1; transition: .4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px;
+            background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        /* Modal */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5); backdrop-filter: blur(5px); animation: fadeIn 0.3s;
+        }
+        
+        .modal-content {
+            background-color: #fff; margin: 5% auto; padding: 30px; border-radius: 20px;
+            width: 90%; max-width: 500px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-height: 90vh; overflow-y: auto;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .status-msg { margin-top: 20px; text-align: center; font-weight: 600; min-height: 24px; }
+        .text-success { color: #059669; }
+        .text-error { color: #dc2626; }
+        .text-wait { color: #d97706; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="logo-icon">
+            <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h2>Envio de Relatório Diário</h2>
+        <p class="subtitle" id="dataDisplay">Carregando data...</p>
+    </div>
+
+    <div class="errata-box">
+        <div>
+            <strong style="color: var(--primary-dark); display: block;">Modo Errata (Correção)</strong>
+            <small style="color: #7f1d1d;">Ative apenas se precisar corrigir um envio anterior.</small>
+        </div>
+        <label class="switch">
+            <input type="checkbox" id="errataSwitch" onchange="atualizarTextos()">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <div class="card">
+        <div style="margin-bottom: 20px;">
+            <label>Assunto do Email</label>
+            <input type="text" id="emailAssunto">
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <label>Corpo da Mensagem</label>
+            <textarea id="emailCorpo" rows="4"></textarea>
+        </div>
+
+        <div>
+            <label>Anexos (PDF e XLSX)</label>
+            <input type="file" id="fileInput" multiple accept=".pdf,.xlsx,.xls">
+            <small style="color: #6b7280; display: block; margin-top: 5px;">Selecione os dois arquivos simultaneamente.</small>
+        </div>
+    </div>
+
+    <div class="status-msg" id="statusMsg"></div>
+
+    <div class="btn-group">
+        <button class="btn btn-primary" onclick="enviarEmail()" id="btnEnviar">
+            <span>🚀</span> Enviar Relatório
+        </button>
+        <button class="btn btn-secondary" onclick="abrirModal()">
+            <span>⚙️</span> Configurações do Servidor
+        </button>
+    </div>
+</div>
+
+<div id="configModal" class="modal">
+    <div class="modal-content">
+        <h3 style="color: var(--primary); margin-top: 0;">⚙️ Configuração do Sistema</h3>
+        <p style="font-size: 0.9em; color: #666; margin-bottom: 20px;">
+            Insira os dados do seu servidor Railway e as credenciais SMTP da empresa.
+        </p>
+
+        <div style="margin-bottom: 15px;">
+            <label>URL do Backend (Railway/Render)</label>
+            <input type="url" id="cfgUrl" placeholder="https://seu-projeto.up.railway.app">
+            <small style="color: #666; font-size: 0.8em;">URL fornecida pelo Railway após o deploy.</small>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px;">
+            <div style="margin-bottom: 15px;">
+                <label>Host SMTP</label>
+                <input type="text" id="cfgHost" placeholder="smtp.office365.com">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label>Porta</label>
+                <input type="number" id="cfgPort" placeholder="587">
+            </div>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label>Usuário SMTP (Email)</label>
+            <input type="text" id="cfgUser" placeholder="ti.rcmr@grupolider.com.br">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label>Senha SMTP</label>
+            <input type="password" id="cfgPass" placeholder="Sua senha de email">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label>Lista de Contatos (CCO)</label>
+            <textarea id="cfgContatos" rows="3" placeholder="email1@exemplo.com, email2@exemplo.com"></textarea>
+            <small style="color: #666;">Separe os emails por vírgula.</small>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="salvarConfig()">💾 Salvar Configurações</button>
+            <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- 1. Inicialização e Lógica de Data (Ontem) ---
+    const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    
+    // Pega a data de hoje e subtrai 1 dia
+    const dataRef = new Date();
+    dataRef.setDate(dataRef.getDate() - 1); 
+
+    const dia = String(dataRef.getDate()).padStart(2, '0');
+    const mesNum = String(dataRef.getMonth() + 1).padStart(2, '0');
+    const ano = dataRef.getFullYear();
+    const mesExtenso = meses[dataRef.getMonth()];
+
+    // Formatos para uso no texto
+    const dataCurta = `${dia}/${mesNum}/${ano}`;
+    const dataLonga = `${dia} de ${mesExtenso} de ${ano}`;
+
+    // Exibe no header
+    document.getElementById('dataDisplay').innerText = `Referência: ${dataLonga}`;
+
+    // --- 2. Gerenciamento de Textos (Normal vs Errata) ---
+    function atualizarTextos() {
+        const isErrata = document.getElementById('errataSwitch').checked;
+        const inputAssunto = document.getElementById('emailAssunto');
+        const inputCorpo = document.getElementById('emailCorpo');
+
+        if (isErrata) {
+            inputAssunto.value = `Consolidado ${dataCurta} [ÚLTIMA FORMA]`;
+            inputCorpo.value = `Por favor, desconsiderar o email anterior. Segue em anexo consolidado de vendas referente ao dia ${dataLonga} correto.`;
+            document.querySelector('.errata-box').style.borderColor = "#dc2626";
+        } else {
+            inputAssunto.value = `Consolidado ${dataCurta}`;
+            inputCorpo.value = `Segue em anexo consolidado de vendas referente ao dia ${dataLonga}.`;
+            document.querySelector('.errata-box').style.borderColor = "#fee2e2";
+        }
+    }
+
+    // --- 3. Lógica do Modal e Configurações ---
+    const modal = document.getElementById('configModal');
+
+    function abrirModal() { modal.style.display = 'block'; }
+    function fecharModal() { modal.style.display = 'none'; }
+
+    // Fecha se clicar fora do modal
+    window.onclick = function(event) {
+        if (event.target == modal) fecharModal();
+    }
+
+    function carregarConfig() {
+        document.getElementById('cfgUrl').value = localStorage.getItem('app_url') || '';
+        document.getElementById('cfgHost').value = localStorage.getItem('smtp_host') || '';
+        document.getElementById('cfgPort').value = localStorage.getItem('smtp_port') || '';
+        document.getElementById('cfgUser').value = localStorage.getItem('smtp_user') || '';
+        document.getElementById('cfgPass').value = localStorage.getItem('smtp_pass') || '';
+        document.getElementById('cfgContatos').value = localStorage.getItem('app_contatos') || '';
+        
+        atualizarTextos(); // Inicializa os textos
+    }
+
+    function salvarConfig() {
+        localStorage.setItem('app_url', document.getElementById('cfgUrl').value);
+        localStorage.setItem('smtp_host', document.getElementById('cfgHost').value);
+        localStorage.setItem('smtp_port', document.getElementById('cfgPort').value);
+        localStorage.setItem('smtp_user', document.getElementById('cfgUser').value);
+        localStorage.setItem('smtp_pass', document.getElementById('cfgPass').value);
+        localStorage.setItem('app_contatos', document.getElementById('cfgContatos').value);
+        
+        alert('Configurações salvas com sucesso!');
+        fecharModal();
+    }
+
+    // --- 4. Função de Envio (Conecta com Backend) ---
+    async function enviarEmail() {
+        const btn = document.getElementById('btnEnviar');
+        const status = document.getElementById('statusMsg');
+        const fileInput = document.getElementById('fileInput');
+        const backendUrl = localStorage.getItem('app_url');
+
+        // Validações
+        if (!backendUrl) {
+            alert('Configure a URL do servidor primeiro (botão Configurações).');
+            abrirModal();
+            return;
+        }
+        if (fileInput.files.length === 0) {
+            alert('Por favor, selecione os anexos.');
+            return;
+        }
+
+        // Feedback visual
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> Enviando...';
+        status.className = 'status-msg text-wait';
+        status.innerText = 'Processando arquivos e conectando ao servidor...';
+
+        try {
+            // Cria o pacote de dados para enviar
+            const formData = new FormData();
+            
+            // Dados do Email
+            formData.append('assunto', document.getElementById('emailAssunto').value);
+            formData.append('corpo', document.getElementById('emailCorpo').value);
+            
+            // Dados de Configuração (Enviados secretamente para o backend usar)
+            formData.append('para', localStorage.getItem('app_contatos'));
+            formData.append('host', localStorage.getItem('smtp_host'));
+            formData.append('port', localStorage.getItem('smtp_port'));
+            formData.append('user', localStorage.getItem('smtp_user'));
+            formData.append('pass', localStorage.getItem('smtp_pass'));
+
+            // Anexos
+            for (let i = 0; i < fileInput.files.length; i++) {
+                formData.append('anexos', fileInput.files[i]);
+            }
+
+            // Envio para o Railway (Endpoint /enviar-email deve existir no seu server.js)
+            // Remove barra final da URL se o usuario colocou sem querer
+            const cleanUrl = backendUrl.replace(/\/$/, ""); 
+            
+            const response = await fetch(`${cleanUrl}/enviar-email`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                status.className = 'status-msg text-success';
+                status.innerText = '✅ Email enviado com sucesso para a lista!';
+                // Opcional: Limpar arquivos após envio
+                // fileInput.value = ''; 
+            } else {
+                const errorText = await response.text();
+                throw new Error(errorText);
+            }
+
+        } catch (error) {
+            console.error(error);
+            status.className = 'status-msg text-error';
+            status.innerText = 'Erro ao enviar: ' + error.message;
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<span>🚀</span> Enviar Relatório';
+        }
+    }
+
+    // Inicializa ao carregar página
+    window.onload = carregarConfig;
+
+</script>
+
+</body>
+</html>
