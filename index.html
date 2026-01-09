@@ -270,11 +270,11 @@
 
         if (isErrata) {
             inputAssunto.value = `Consolidado ${dataCurta} [ÚLTIMA FORMA]`;
-            inputCorpo.value = `Por favor, desconsiderar o email anterior. Segue em anexo consolidado de vendas referente ao dia ${dataLonga} correto.`;
+            inputCorpo.value = `Por favor, desconsiderar o email anterior. Segue em anexo o consolidado de vendas referente ao dia ${dataLonga} correto.`;
             document.querySelector('.errata-box').style.borderColor = "#dc2626";
         } else {
             inputAssunto.value = `Consolidado ${dataCurta}`;
-            inputCorpo.value = `Segue em anexo consolidado de vendas referente ao dia ${dataLonga}.`;
+            inputCorpo.value = `Segue em anexo o consolidado de vendas referente ao dia ${dataLonga}.`;
             document.querySelector('.errata-box').style.borderColor = "#fee2e2";
         }
     }
@@ -393,3 +393,4 @@
 
 </body>
 </html>
+
