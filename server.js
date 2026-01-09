@@ -5,23 +5,19 @@ const multer = require('multer');
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
-// ATENÇÃO: Habilita o CORS para que o seu site no GitHub Pages possa falar com o Railway
-app.use(cors());
+app.use(cors()); // Permite que o GitHub Pages acesse o Railway
 app.use(express.json());
 
-// ROTA PRINCIPAL: É aqui que o erro 405 é resolvido
+// Esta é a rota que o seu HTML vai procurar
 app.post('/enviar-email', upload.array('anexos'), async (req, res) => {
     const { para, assunto, corpo, host, port, user, pass } = req.body;
 
-    console.log(`Tentativa de envio recebida para: ${para}`);
-
-    // Configuração do transportador SMTP dinâmico
     let transporter = nodemailer.createTransport({
         host: host,
-        port: port,
-        secure: port == 465, // true para 465, false para outras como 587
+        port: parseInt(port),
+        secure: port == 465,
         auth: { user: user, pass: pass },
-        tls: { rejectUnauthorized: false } // Importante para redes corporativas
+        tls: { rejectUnauthorized: false }
     });
 
     try {
@@ -32,26 +28,23 @@ app.post('/enviar-email', upload.array('anexos'), async (req, res) => {
 
         await transporter.sendMail({
             from: user,
-            bcc: para, // Envia para a lista de contatos em cópia oculta
+            bcc: para,
             subject: assunto,
             text: corpo,
             attachments: attachments
         });
 
-        console.log("Email enviado com sucesso!");
         res.status(200).send("Enviado com sucesso!");
     } catch (error) {
-        console.error("Erro no Nodemailer:", error);
-        res.status(500).send("Erro ao enviar: " + error.message);
+        console.error(error);
+        res.status(500).send("Erro no servidor: " + error.message);
     }
 });
 
-// Rota de teste simples para verificar se o servidor está vivo
-app.get('/', (req, res) => {
-    res.send("Servidor de Email da Recreio está ativo!");
-});
+// Rota para conferir se o site está online
+app.get('/', (req, res) => { res.send("Servidor Online!"); });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`Rodando na porta ${PORT}`);
 });
